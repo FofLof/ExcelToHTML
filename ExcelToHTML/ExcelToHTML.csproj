@@ -10,6 +10,7 @@
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.13.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.34" />
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1000" />
+    <PackageReference Include="OpenXmlPowerTools" Version="4.5.3.2" />
   </ItemGroup>
 
 </Project>
