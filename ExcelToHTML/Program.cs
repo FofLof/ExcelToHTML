@@ -52,17 +52,71 @@ namespace ExcelToHTML
             html += "</head><body>";
             WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
             SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+            
             string dataText;
-            foreach (Row r in sheetData.Elements<Row>())
-              {
-                 foreach (Cell c in r.Elements<Cell>())
-                 {
-                    dataText = c.CellValue.Text;
-                    html += dataText;
-                 }
-             }
-              
-                html += "</body>";
+
+            String[] columnLetter = { "A", "B", "C", "D", "E", "F", "G", "I"}; //gotta be a better way then just putting the letter
+
+            /*foreach (Row r in sheetData.Elements<Row>())
+            {
+                foreach (Cell c in r.Elements<Cell>())
+                {
+                    foreach (string l in columnLetter)
+                    {
+                        for (int i = 1; i <= 38; i++) //there's gotta be a more efficient way then to just go count the number of rows why am I so bad at coding 
+                        {
+                            if (c.DataType != null)
+                            {
+                                dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
+                                html += "   ";
+                                html += dataText;
+                            }
+                            else
+                            {
+                                html += "\r\n";
+                            }
+                        }
+
+                    }
+                }
+            }*/
+            /*foreach (string l in columnLetter)
+            {
+                for (int i = 1; i <= 38; i++) //there's gotta be a more efficient way then to just go count the number of rows why am I so bad at coding 
+                {
+                    if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null)
+                    {
+                        string address = l + i.ToString();
+                        dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", address);
+                        html += "   ";
+                        html += dataText;
+                    }
+                    else
+                    {
+                        html += "\r\n";
+                    }
+                }
+
+            } */
+            for (int i = 1; i <= 38; i++) {
+                foreach (string l in columnLetter)
+                {
+                    if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null) //so this doesnt work coolio
+                    {
+                        dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
+                        html += "               ";
+                        html += dataText;
+                    }
+                    else
+                    {
+                        html += "\r\n";
+                    }
+
+                }
+            }
+           
+
+            html += "</body>";
 
                 doc.LoadHtml(html);
                 using (FileStream fs = new FileStream("afsc.html", FileMode.Create))
