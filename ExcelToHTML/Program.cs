@@ -5,12 +5,22 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using HtmlAgilityPack;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 //using Microsoft.Office.Interop.Excel;
 
 namespace ExcelToHTML
 {
     class Program
     {
+        public static string GetColumnName(string cellReference)
+        {
+            // Create a regular expression to match the column name portion of the cell name.
+            Regex regex = new Regex("[A-Za-z]+");
+            Match match = regex.Match(cellReference);
+            return match.Value;
+        }
+
         public static string GetCellValue(string fileName,
         string sheetName,
         string addressName)
@@ -98,9 +108,6 @@ namespace ExcelToHTML
             }
             return value;
         }
-    
-
- 
         static void Main(string[] args)
 
         {
@@ -124,71 +131,67 @@ namespace ExcelToHTML
             html += "<title>Page Title</title>";
 
             html += "</head><body>";
+            html += "<p>";
             WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
             SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+            //Worksheet worksheet = (doc.WorkbookPart.GetPartById(sheet.Id) as WorksheetPart).Worksheet;
 
             string dataText;
 
                 String[] columnLetter = { "A", "B", "C", "D", "E", "F", "G", "I" }; //gotta be a better way then just putting the letter
 
-                /*foreach (Row r in sheetData.Elements<Row>())
+            /*foreach (Row r in sheetData.Elements<Row>())
+            {
+                foreach (Cell c in r.Elements<Cell>())
                 {
-                    foreach (Cell c in r.Elements<Cell>())
-                    {
-                        foreach (string l in columnLetter)
-                        {
-                            for (int i = 1; i <= 38; i++) //there's gotta be a more efficient way then to just go count the number of rows why am I so bad at coding 
-                            {
-                                if (c.DataType != null)
-                                {
-                                    dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
-                                    html += "   ";
-                                    html += dataText;
-                                }
-                                else
-                                {
-                                    html += "\r\n";
-                                }
-                            }
-
-                        }
-                    }
-                }*/
-                /*foreach (string l in columnLetter)
-                {
-                    for (int i = 1; i <= 38; i++) //there's gotta be a more efficient way then to just go count the number of rows why am I so bad at coding 
-                    {
-                        if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null)
-                        {
-                            string address = l + i.ToString();
-                            dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", address);
-                            html += "   ";
-                            html += dataText;
-                        }
-                        else
-                        {
-                            html += "\r\n";
-                        }
-                    }
-
-                } */
-                for (int i = 1; i <= 38; i++) {
                     foreach (string l in columnLetter)
                     {
-                        if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null) //so this doesnt work coolio
+                        for (int i = 1; i <= 38; i++) //there's gotta be a more efficient way then to just go count the number of rows why am I so bad at coding 
                         {
-                            dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
-                            html += "               ";
-                            html += dataText;
-                        }
-                        else
-                        {
-                            html += "\r\n";
+                            if (c.DataType != null)
+                            {
+                                dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
+                                html += "   ";
+                                html += dataText;
+                            }
+                            else
+                            {
+                                html += "\r\n";
+                            }
                         }
 
                     }
                 }
+            }*/
+            //IEnumerable<Row> rows = worksheet.GetFirstChild<SheetData>().Descendants<Row>();
+            html += "<table>";
+            html += "Table 3. Incidence rates1 of nonfatal occupational injuries and illnesses by industry sector and employment size, California, 2019";
+                for (int i = 3; i <= 38; i++) {
+                    html += "<tr>";
+                    foreach (string l in columnLetter)
+                    {
+                        html += "<td rowspan = 1 colspan = 0>";
+                       
+                        if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null) //so this doesnt work coolio and its 3AM so tmrw i guess
+                        {
+                     
+                            dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
+                            html += " ";
+                            html += dataText;
+                            html +=  "</td>";
+                        }
+                        else
+                        {
+                            
+                            html += "<br>";
+                        html += "</td>";
+                        }
 
+                    }
+                    html += "</tr>";
+                }
+                html += "</table>";
+                html += "<p>";
                 html += "</body>";
 
                 doc.LoadHtml(html);
