@@ -134,7 +134,6 @@ namespace ExcelToHTML
             html += "<p>";
             WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
             SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
-            //Worksheet worksheet = (doc.WorkbookPart.GetPartById(sheet.Id) as WorksheetPart).Worksheet;
 
             string dataText;
 
@@ -163,7 +162,7 @@ namespace ExcelToHTML
                     }
                 }
             }*/
-            //IEnumerable<Row> rows = worksheet.GetFirstChild<SheetData>().Descendants<Row>();
+
             html += "<table>";
             html += "Table 3. Incidence rates1 of nonfatal occupational injuries and illnesses by industry sector and employment size, California, 2019";
                 for (int i = 3; i <= 38; i++) {
@@ -172,7 +171,7 @@ namespace ExcelToHTML
                     {
                         html += "<td rowspan = 1 colspan = 0>";
                        
-                        if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null) //so this doesnt work coolio and its 3AM so tmrw i guess
+                        if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null) 
                         {
                      
                             dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
