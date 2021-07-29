@@ -7,20 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using Aspose.Cells;
+
 //using Microsoft.Office.Interop.Excel;
 
 namespace ExcelToHTML
 {
     class Program
     {
-        public static string GetColumnName(string cellReference)
-        {
-            // Create a regular expression to match the column name portion of the cell name.
-            Regex regex = new Regex("[A-Za-z]+");
-            Match match = regex.Match(cellReference);
-            return match.Value;
-        }
-
         public static string GetCellValue(string fileName,
         string sheetName,
         string addressName)
@@ -51,7 +45,7 @@ namespace ExcelToHTML
 
                 // Use its Worksheet property to get a reference to the cell 
                 // whose address matches the address you supplied.
-                Cell theCell = wsPart.Worksheet.Descendants<Cell>().
+                DocumentFormat.OpenXml.Spreadsheet.Cell theCell = wsPart.Worksheet.Descendants<DocumentFormat.OpenXml.Spreadsheet.Cell>().
                   Where(c => c.CellReference == addressName).FirstOrDefault();
 
                 // If the cell does not exist, return an empty string.
@@ -108,9 +102,23 @@ namespace ExcelToHTML
             }
             return value;
         }
+
+        public static string fileName = "2019Table3.xlsx";
         static void Main(string[] args)
 
         {
+            Aspose.Cells.Workbook wb = new Aspose.Cells.Workbook(fileName);
+
+            //Access the first worksheet
+            Aspose.Cells.Worksheet ws = wb.Worksheets[0];
+
+            //Access last cell inside the worksheet
+            Aspose.Cells.Cell cell = ws.Cells.LastCell;
+            //Number of rows inside the worksheet
+            int rowCount = cell.Row + 1;
+
+            //Number of columns inside the worksheet
+            Console.WriteLine("Number of Columns: " + (cell.Column + 1));
             /*var tableThree = new Aspose.Cells.Workbook("2019Table3.xlsx");
             //save XLS as HTML
             Aspose.Cells.HtmlSaveOptions htmlSaveOptions = new Aspose.Cells.HtmlSaveOptions();
@@ -119,25 +127,54 @@ namespace ExcelToHTML
 
             var doc = new HtmlDocument();
 
-            SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open("2019Table3.xlsx", false);
+            SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(fileName, false);
 
             spreadsheetDocument.ChangeDocumentType((SpreadsheetDocumentType)WordprocessingDocumentType.Document);
 
 
             WorkbookPart workbookPart = spreadsheetDocument.WorkbookPart;
-            workbookPart.Workbook = new Workbook();
+            workbookPart.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
 
             string html = "<head>";
             html += "<title>Page Title</title>";
 
             html += "</head><body>";
             html += "<p>";
-            WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
-            SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+            //WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
+            //SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
 
             string dataText;
+            int colCount = 0;
 
-                String[] columnLetter = { "A", "B", "C", "D", "E", "F", "G", "I" }; //gotta be a better way then just putting the letter
+            string[] columnLetter = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; //gotta be a better way then just putting the letter
+            //then access to the worksheet part
+            IEnumerable<WorksheetPart> worksheetPart = workbookPart.WorksheetParts;
+
+            /*foreach (WorksheetPart WSP in worksheetPart)
+            {
+                //find sheet data
+                IEnumerable<SheetData> sheetData = WSP.Worksheet.Elements<SheetData>();
+                // Iterate through every sheet inside Excel sheet
+                foreach (SheetData SD in sheetData)
+                {
+                    IEnumerable<DocumentFormat.OpenXml.Spreadsheet.Row> row = SD.Elements<Row>(); // Get the row IEnumerator
+                    rowCount = row.Count(); ; // Will give you the count of rows
+                }
+            }*/
+
+            int columnCount = 0;
+
+            string[] columnsInDoc = new string[columnCount];
+            for (int i = 0; i < columnCount; i++)
+            {
+                columnLetter[i] = columnsInDoc[i];
+            }
+            Console.WriteLine(columnCount);
+
+            foreach (string t in columnsInDoc)
+            {
+                Console.WriteLine(t.ToString());
+            }
 
             /*foreach (Row r in sheetData.Elements<Row>())
             {
@@ -164,26 +201,24 @@ namespace ExcelToHTML
             }*/
 
             html += "<table>";
-            html += "Table 3. Incidence rates1 of nonfatal occupational injuries and illnesses by industry sector and employment size, California, 2019";
-                for (int i = 3; i <= 38; i++) {
+            
+                for (int i = 1; i <= rowCount; i++) {
                     html += "<tr>";
                     foreach (string l in columnLetter)
                     {
                         html += "<td rowspan = 1 colspan = 0>";
                        
-                        if (GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString()) != null) 
+                        if (GetCellValue(fileName, "SUM_3_06_2019", l + i.ToString()) != null) 
                         {
-                     
-                            dataText = GetCellValue("2019Table3.xlsx", "SUM_3_06_2019", l + i.ToString());
+                            dataText = GetCellValue(fileName, "SUM_3_06_2019", l + i.ToString());
                             html += " ";
                             html += dataText;
                             html +=  "</td>";
                         }
                         else
-                        {
-                            
+                        { 
                             html += "<br>";
-                        html += "</td>";
+                            html += "</td>";
                         }
 
                     }
