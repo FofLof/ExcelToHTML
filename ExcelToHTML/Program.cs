@@ -15,6 +15,11 @@ namespace ExcelToHTML
 {
     class Program
     {
+        public static void addToHTML(string addedElements)
+        {
+            html += "\r\n";
+            html += addedElements;
+        }
         public static string GetCellValue(string fileName,
         string sheetName,
         string addressName)
@@ -119,9 +124,11 @@ namespace ExcelToHTML
         //Should I make this receive user input for the file name?
         public static string fileName = "2019Table3.xlsx";
         public static string[] sheetNameArray;
+        public static string html;
         static void Main(string[] args)
 
         {
+            //string fileName = Console.ReadLine();
             SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(fileName, false);
 
             WorkbookPart workbookPart = spreadsheetDocument.WorkbookPart;
@@ -160,37 +167,41 @@ namespace ExcelToHTML
             //Probably atrocious to read this sorry
             for (int i = 0; i < n; i++) //loop thru sheet # making an html file per
             {
-                string html = "<head>";
-                html += "<title>Page Title</title>";
-                html += "</head><body>";
-                html += "<p>";
-                html += "<table>";
+                addToHTML("<head>");
+                addToHTML("<title>Page Title</title>");
+                addToHTML("</head><body>");
+                addToHTML("<div>");
+                addToHTML("<p>");
+                addToHTML("<table>");
                 for (int j = 1; j <= rowCount; j++) //looping thru each row and column and adding cells as needed
                 {
-                    html += "<tr>";
+                    addToHTML("<tr>");
+                    addToHTML("<col>");
                     foreach (string l in columnLetter) 
                     {
-                        html += "<td rowspan = 1 colspan = 0>";
+                        addToHTML("<td rowspan = 1 colspan = 0>");
 
                         if (GetCellValue(fileName, sheetNameArray[i], l + j.ToString()) != null) //if cell not empty add cell
                         {
                             dataText = GetCellValue(fileName, sheetNameArray[i], l + j.ToString());
                             html += " ";
                             html += dataText;
-                            html += "</td>";
+                            addToHTML("</td>");
                         }
                         else
                         {
-                            html += "<br>";
-                            html += "</td>";
+                            addToHTML("<br>");
+                            addToHTML("</td>");
                         }
 
-                    } 
+                    }
+                    addToHTML("</tr>");
+                    addToHTML("</col>");
                 }
-                html += "</tr>";
-                html += "</table>";
-                html += "<p>";
-                html += "</body>";
+                addToHTML("</table>");
+                addToHTML("<p>");
+                addToHTML("</div>");
+                addToHTML("</body>");
                 doc.LoadHtml(html);
                 string htmlName = "Table";
                 Console.WriteLine("Making a file");
