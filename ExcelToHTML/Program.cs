@@ -124,7 +124,7 @@ namespace ExcelToHTML
             return theSheets;
         }
 
-        public static Sheet SheetsToSheet(Sheets sh)
+        /*public static Sheet SheetsToSheet(Sheets sh)
         {
             return new Sheet();
         }
@@ -133,6 +133,31 @@ namespace ExcelToHTML
         {
             string y = x.Name;
             return y;
+        }*/
+
+        public static void wrapText(string longString, int limit)
+        {
+            string[] words = longString.Split(' ');
+
+            StringBuilder newSentence = new StringBuilder();
+
+
+            string line = "";
+            foreach (string word in words)
+            {
+                if ((line + word).Length > limit)
+                {
+                    newSentence.AppendLine(line);
+                    line = "";
+                }
+
+                line += string.Format("{0} ", word);
+            }
+
+            if (line.Length > 0)
+                newSentence.AppendLine(line);
+
+            html += newSentence;
         }
 
         //Should I make this receive user input for the file name?
@@ -198,7 +223,6 @@ namespace ExcelToHTML
                 addToHTML("<title>Page Title</title>");
                 addToHTML("</head><body>");
                 addToHTML("<div>");
-                //addToHTML("<p>");
                 addToHTML("<table>");
                 for (int j = 1; j <= rowCount; j++) //looping thru each row and column and adding cells as needed
                 {
@@ -213,7 +237,6 @@ namespace ExcelToHTML
                         if (GetCellValue(fileName, sheetNameArray[i].ToString(), l + j.ToString()) != null) //if cell not empty add cell
                         {
                             dataText = GetCellValue(fileName, sheetNameArray[i].ToString(), l + j.ToString());
-                            //Console.WriteLine(previousString);
                             //counting the spaces so we can add them to the annoying -- that doesnt have any indentation
                             if (previousString != null)
                             {
@@ -237,25 +260,19 @@ namespace ExcelToHTML
                                 //I don't know why but the -- doesnt get any identation when taken by GetCellValue
                             }
                             //if length of text is too big then next line and continues
-                            if (dataText.Length > 150)
+                            int myLimit = 150;
+                            if (dataText.Length > myLimit)
                             {
-                                foreach (var c in dataText)
-                                {
-                                    builder.Append(c);
-                                    if ((++count % 150) == 0)
-                                    {
-                                        builder.Append("\r\n");
-                                    }
-                                }
-                                dataText = builder.ToString();
+                                wrapText(dataText, myLimit);
+                            } else
+                            {
+                                html += dataText;
                             }
-
                             /*if (freq > 35)
                             {
                                 dataText = dataText.Trim(); 
                             }*/
-                            html += dataText;
-                            //Console.WriteLine(dataText);
+                            //html += dataText;
                             addToHTML("</td>");
 
                         }
@@ -268,7 +285,6 @@ namespace ExcelToHTML
                     //addToHTML("</td>");
                 }
                 addToHTML("</table>");
-                //addToHTML("<p>");
                 addToHTML("</div>");
                 addToHTML("</body>");
                 Console.WriteLine(html);
