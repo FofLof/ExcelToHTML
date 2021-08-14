@@ -160,11 +160,23 @@ namespace ExcelToHTML
             html += newSentence;
         }
 
+        public static void countCharacter(char desiredChar, string countedString)
+        {
+            if (countedString != null)
+            {
+                if (countedString.Contains(desiredChar.ToString()))
+                {
+                    freq = countedString.Count(f => (f == desiredChar));
+                }
+            }
+        }
+
         //Should I make this receive user input for the file name?
         public static string fileName = "2019Table3.xlsx";
         public static string[] sheetNameArray;
         public static string html;
         public static string indentedText;
+        public static int freq = 0;
         static void Main(string[] args)
 
         {
@@ -204,12 +216,14 @@ namespace ExcelToHTML
                 sheetPos += 1;
             }
 
+           
+
 
             var doc = new HtmlDocument();
 
             string dataText;
             var builder = new StringBuilder();
-            int freq = 0;
+
             int count = 0;
             string previousString = String.Empty ;
             string[] columnLetter = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }; //gotta be a better way then just putting the letter
@@ -221,16 +235,21 @@ namespace ExcelToHTML
             {
                 addToHTML("<head>");
                 addToHTML("<title>Page Title</title>");
+                addToHTML("<style>");
+                addToHTML("table, th, td {");
+                addToHTML("border: 1px solid black;");
+                addToHTML("border-collapse: collapse; }");
+                addToHTML("</style>");
                 addToHTML("</head><body>");
                 addToHTML("<div>");
-                addToHTML("<table>");
+                addToHTML("<table style = 'width:10%'>");
                 for (int j = 1; j <= rowCount; j++) //looping thru each row and column and adding cells as needed
                 {
-                    addToHTML("<td>");
                     addToHTML("<tr>");
                     addToHTML("<col>");
                     foreach (string l in columnLetter) 
                     {
+                        addToHTML("<td>");
                         addToHTML("<td rowspan = 1 colspan = 0>");
                         addToHTML("<pre>");
 
@@ -238,15 +257,10 @@ namespace ExcelToHTML
                         {
                             dataText = GetCellValue(fileName, sheetNameArray[i].ToString(), l + j.ToString());
                             //counting the spaces so we can add them to the annoying -- that doesnt have any indentation
-                            if (previousString != null)
-                            {
-                                if (previousString.Contains(" "))
-                                {
-                                    freq = previousString.Count(f => (f == ' '));
-                                } 
-                            }
+                            
+                            countCharacter(' ', previousString);
                             //adding the spaces
-                            if (!(dataText.Contains("  ")) && dataText.Length < 4)
+                            if (!(dataText.Contains("  ")) && dataText.Length < 5)
                             {
                                 if (freq < 15)
                                 {
@@ -255,7 +269,7 @@ namespace ExcelToHTML
                                         dataText = dataText.Insert(0, " ");
                                         //Console.WriteLine("Inserting");
                                     } 
-                                } 
+                                }
                                
                                 //I don't know why but the -- doesnt get any identation when taken by GetCellValue
                             }
@@ -273,21 +287,20 @@ namespace ExcelToHTML
                                 dataText = dataText.Trim(); 
                             }*/
                             //html += dataText;
-                            addToHTML("</td>");
+
 
                         }
                         addToHTML("</pre>");
                         previousString = GetCellValue(fileName, sheetNameArray[i].ToString(), l + j.ToString());
 
                     }
+                    addToHTML("</td>");
                     addToHTML("</tr>");
                     addToHTML("</col>");
-                    //addToHTML("</td>");
                 }
                 addToHTML("</table>");
                 addToHTML("</div>");
                 addToHTML("</body>");
-                Console.WriteLine(html);
                 doc.LoadHtml(html);
                 string htmlName = "Table";
                 Console.WriteLine("Making a file");
@@ -378,3 +391,22 @@ namespace ExcelToHTML
                 sheetNameArray[n - 1] = item.Name;
                 n += 1;
 }*/
+
+/*int indexOfNextCell = Array.IndexOf(columnLetter, l);
+                            string letterOfNextCell = columnLetter[indexOfNextCell + 1];
+  
+                            string nextCell = GetCellValue(fileName, sheetNameArray[i].ToString(), letterOfNextCell + (j).ToString());
+
+                            countCharacter(' ', nextCell);
+                            if (nextCell != null)
+                            {
+                                if (!(dataText.Contains(" ")) && nextCell.Contains("   "))
+                                {
+                                    for (int q = 0; q < freq; q++)
+                                    {
+                                        dataText = dataText.Insert(0, " ");
+                                        Console.WriteLine("Inserting");
+                                    }
+                                }
+                                //freq = 0;
+                            }*/
